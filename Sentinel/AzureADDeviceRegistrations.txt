@@ -1,0 +1,9 @@
+AuditLogs
+| where OperationName == "Register device"
+| extend InitiatedByUserPrincpialName = InitiatedBy.user.userPrincipalName
+| extend InitiatedById = InitiatedBy.user.id
+| extend InitiatedByIpAddress = InitiatedBy.user.ipAddress
+| extend AdditionalInfo = AdditionalDetails[0]["value"]
+| extend DeviceProfile = AdditionalDetails[1]["value"]
+| extend DeviceTrustType = tostring(AdditionalDetails[2]["value"])
+| extend DeviceOS = AdditionalDetails[3]["value"]

@@ -1,0 +1,17 @@
+let Lookback = ago(30d);
+let OutlookToBrowserEvents =
+DeviceProcessEvents
+| where Timestamp > Lookback
+| where ActionType == "ProcessCreated"
+| where InitiatingProcessFileName =~ "outlook.exe"
+| where FileName has_any("msedge.exe", "chrome.exe", "firefox.exe", "iexplore.exe")
+| where not(ProcessCommandLine matches regex @"(?i)iexplore.*\s+-(startmanager|Embedding)")
+| where not(ProcessCommandLine matches regex "(?i)(https?|mailto):")
+| extend BrowserFilePath = trim_end("(\"|')", trim_start(@"(?i)\S+\s+--single-argument\s+", ProcessCommandLine))
+| extend BrowserFilePathParsed = parse_path(BrowserFilePath)
+| extend BrowserFilePathExtension = tolower(BrowserFilePathParsed.Extension)
+| extend BrowserFilePathFilename = BrowserFilePathParsed.Filename
+| where not(BrowserFilePathExtension has_any("pdf")); // mht
+let FilePaths = OutlookToBrowserEvents | project BrowserFilePath;
+DeviceFileEvents
+| where FolderPath in (FilePaths)

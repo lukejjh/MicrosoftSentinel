@@ -1,0 +1,20 @@
+DeviceEvents
+| where ActionType == "UserAccountAddedToLocalGroup"
+| where InitiatingProcessAccountName !endswith "$" // Exclude machine accounts.
+| extend GroupName = tostring(parse_json(AdditionalFields).GroupName)
+| extend GroupDomainName = tostring(parse_json(AdditionalFields).GroupDomainName)
+| join kind=inner (
+    IdentityInfo
+    | where Timestamp > ago(30d)
+    | summarize arg_max(Timestamp, *) by OnPremSid
+    | extend
+        UserAddedAccountName = AccountName,
+        UserAddedOnPremSid = OnPremSid,
+        UserAddedAccountDisplayName = AccountDisplayName
+    | project UserAddedAccountName, OnPremSid, UserAddedAccountDisplayName
+) on $left.AccountSid == $right.OnPremSid
+| project Timestamp, ReportId, DeviceName, DeviceId, InitiatingProcessAccountName, InitiatingProcessAccountSid, AccountSid, ActionType, UserAddedAccountName, UserAddedAccountDisplayName, GroupName, GroupDomainName
+| where GroupDomainName =~ "Builtin"
+| where GroupName =~ "Administrators"
+| where InitiatingProcessAccountName !~ UserAddedAccountName
+| order by Timestamp desc
