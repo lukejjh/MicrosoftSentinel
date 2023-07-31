@@ -1,0 +1,14 @@
+DeviceProcessEvents 
+| where FileName has_any("wscript.exe", "cscript.exe")
+| where 
+(
+    InitiatingProcessFileName has_any ("explorer.exe", "7zFM.exe") and
+    (
+        ProcessCommandLine matches regex @"(?i)\\Users\\[^\\]+\\Downloads\\" or
+        ProcessCommandLine matches regex @"(?i)\\Users\\[^\\]+\\AppData\\Local\\Temp\\[^\\]+\\.+\.zip"
+    )
+    or
+    (
+        InitiatingProcessFileName has_any ("msedge.exe", "chrome.exe", "firefox.exe")
+    )
+)

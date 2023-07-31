@@ -1,0 +1,13 @@
+let IpSearch = "1.2.3.4"
+;
+let IpSearchResults = DeviceNetworkEvents
+| extend
+    DnsQuery = tostring(AdditionalFields.query),
+    DnsAnswers = AdditionalFields.answers
+| where DnsAnswers has_any (IpSearch)
+| distinct DnsQuery
+;
+DeviceNetworkEvents
+| where RemoteUrl has_any (IpSearchResults)
+| project TimeGenerated, DeviceName, InitiatingProcessAccountName, InitiatingProcessFileName, ActionType, LocalIP, RemoteIP, RemoteUrl
+| order by TimeGenerated desc
