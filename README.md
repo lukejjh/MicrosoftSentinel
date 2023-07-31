@@ -1,2 +1,2 @@
 # MicrosoftSentinel
-An assortment of Microsoft Sentinel and M365 Defender Advanced Hunting queries.
+This repository contains an assortment of Microsoft Sentinel and Microsoft 365 Defender Advanced Hunting queries.
