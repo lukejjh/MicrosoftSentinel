@@ -1,0 +1,11 @@
+// This query looks for emails destined for a SecOps mailbox but weren't delivered for some
+// reason. An M365 SecOps mailbox typically exists to receive things like security alerts,
+// phishing reports, etc.; stuff you really wouldn't want to be missing. You may, instead,
+// find them hanging out in your quarantine, dropped, junked or blocked.
+//
+EmailEvents
+| where Timestamp > ago(30d)
+| where OrgLevelPolicy == "SecOps Mailbox"
+| where LatestDeliveryAction != "Delivered"
+| project-reorder Timestamp, SenderFromAddress, RecipientEmailAddress, ThreatTypes, *Action, *Direction, *Location, Subject
+| order by Timestamp desc
