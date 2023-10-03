@@ -1,0 +1,9 @@
+// List top TLDs for emails received in the specified lookback, including a sample set of domains.
+let Lookback = 30d;
+let SetMaxSize = 10;
+EmailEvents
+| where Timestamp > ago(Lookback)
+| where EmailDirection == "Inbound" and SenderFromDomain has "."
+| extend SenderFromDomainTld = extract(@"\.(\w+)$", 1, tolower(SenderFromDomain))
+| summarize SenderFromDomainTldCount = count(), SenderFromDomainSet = make_set(SenderFromDomain, SetMaxSize) by SenderFromDomainTld
+| order by SenderFromDomainTldCount desc
