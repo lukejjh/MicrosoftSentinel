@@ -4,6 +4,8 @@ This Sentinel workbook provides reporting of AppLocker or WDAC (Windows Defender
 
 ![](./demo.gif)
 
+For more information on app control events in Defender, see *[Querying App Control events centrally using Advanced hunting](https://learn.microsoft.com/en-us/windows/security/application-security/application-control/app-control-for-business/operations/querying-application-control-events-centrally-using-advanced-hunting)*.
+
 ## Features
 
 A range of parameters are provided to filter and transform data.
