@@ -1,0 +1,884 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "🗒️ Event selection",
+              "items": [
+                {
+                  "type": 9,
+                  "content": {
+                    "version": "KqlParameterItem/1.0",
+                    "parameters": [
+                      {
+                        "id": "e30891cb-06aa-478d-9b2e-9ebafee51325",
+                        "version": "KqlParameterItem/1.0",
+                        "name": "TimeRange",
+                        "label": "Time range",
+                        "type": 4,
+                        "isRequired": true,
+                        "typeSettings": {
+                          "selectableValues": [
+                            {
+                              "durationMs": 1800000
+                            },
+                            {
+                              "durationMs": 3600000
+                            },
+                            {
+                              "durationMs": 14400000
+                            },
+                            {
+                              "durationMs": 43200000
+                            },
+                            {
+                              "durationMs": 86400000
+                            },
+                            {
+                              "durationMs": 172800000
+                            },
+                            {
+                              "durationMs": 259200000
+                            },
+                            {
+                              "durationMs": 604800000
+                            },
+                            {
+                              "durationMs": 2592000000
+                            },
+                            {
+                              "durationMs": 5184000000
+                            },
+                            {
+                              "durationMs": 7776000000
+                            }
+                          ],
+                          "allowCustom": true
+                        },
+                        "timeContext": {
+                          "durationMs": 86400000
+                        },
+                        "value": {
+                          "durationMs": 2592000000
+                        }
+                      },
+                      {
+                        "id": "01a67936-8423-4fe4-b5a4-9ca69bed83a3",
+                        "version": "KqlParameterItem/1.0",
+                        "name": "ActionType",
+                        "label": "Action",
+                        "type": 2,
+                        "multiSelect": true,
+                        "quote": "'",
+                        "delimiter": ",",
+                        "query": "let GetEmoji = (actionType:string) {\r\n    case(\r\n        actionType endswith \"Allowed\", \"✅\",\r\n        actionType endswith \"Blocked\", \"🚫\",\r\n        actionType endswith \"Revoked\", \"⛔\",\r\n        actionType endswith \"Audited\", \"⚠️\",\r\n        actionType endswith \"Information\", \"🔵\",\r\n        actionType endswith \"PolicyApplied\", \"⚫\",\r\n        actionType endswith \"Loaded\", \"🔃\",\r\n        \"🔵\" // default\r\n    )\r\n};\r\n\r\nlet ActionTypesTable = datatable(ActionType: string, group: string) [\r\n    \"AppControlCodeIntegrityDriverRevoked\", \"Code integrity\",\r\n    \"AppControlCodeIntegrityImageRevoked\", \"Code integrity\",\r\n    \"AppControlCodeIntegrityPolicyAudited\", \"Code integrity\",\r\n    \"AppControlCodeIntegrityPolicyBlocked\", \"Code integrity\",\r\n    \"AppControlExecutableAudited\", \"Executables\",\r\n    \"AppControlExecutableBlocked\", \"Executables\",\r\n    \"AppControlPackagedAppAudited\", \"Packaged apps\",\r\n    \"AppControlPackagedAppBlocked\", \"Packaged apps\",\r\n    \"AppControlScriptAudited\", \"Scripts\",\r\n    \"AppControlScriptBlocked\", \"Scripts\",\r\n    \"AppControlCIScriptAudited\", \"Code integrity\",\r\n    \"AppControlCIScriptBlocked\", \"Code integrity\",\r\n    \"AppControlCodeIntegrityOriginAllowed\", \"Code integrity\",\r\n    \"AppControlCodeIntegrityOriginAudited\", \"Code integrity\",\r\n    \"AppControlCodeIntegrityOriginBlocked\", \"Code integrity\",\r\n    \"AppControlCodeIntegrityPolicyLoaded\", \"Policy\",\r\n    \"AppControlCodeIntegritySigningInformation\", \"Code integrity\",\r\n    \"AppControlPolicyApplied\", \"Policy\"\r\n];\r\n\r\nlet DeviceEventCounts = DeviceEvents\r\n| where ActionType startswith \"AppControl\"\r\n| summarize Count = count() by ActionType;\r\n\r\nActionTypesTable\r\n| join kind=leftouter (DeviceEventCounts) on ActionType\r\n| extend Count = coalesce(Count, 0)\r\n| extend Emoji = GetEmoji(ActionType)\r\n| extend selected = case(\r\n    ActionType in (\r\n        \"AppControlExecutableBlocked\",\r\n        \"AppControlPackagedAppBlocked\",\r\n        \"AppControlExecutableAudited\",\r\n        \"AppControlAppInstallationBlocked\",\r\n        \"AppControlScriptBlocked\",\r\n        \"AppControlScriptAudited\",\r\n        \"AppControlPackagedAppAudited\"\r\n    ), true, false)\r\n| extend groupOrder = case(\r\n    group == \"Executables\", 1,\r\n    group == \"Scripts\", 2,\r\n    group == \"Packaged apps\", 3,\r\n    group == \"Policy\", 4,\r\n    group == \"Code integrity\", 5,\r\n    6 // default\r\n)\r\n| project\r\n    value = ActionType,\r\n    label = strcat(Emoji, \" \", ActionType, \" (\", Count, \")\"),\r\n    selected,\r\n    group,\r\n    groupOrder\r\n| order by groupOrder asc, label asc",
+                        "typeSettings": {
+                          "additionalResourceOptions": [
+                            "value::all"
+                          ],
+                          "selectAllValue": "[]"
+                        },
+                        "timeContext": {
+                          "durationMs": 2592000000
+                        },
+                        "timeContextFromParameter": "TimeRange",
+                        "queryType": 0,
+                        "resourceType": "microsoft.operationalinsights/workspaces",
+                        "value": [
+                          "value::all"
+                        ]
+                      }
+                    ],
+                    "style": "above",
+                    "queryType": 0,
+                    "resourceType": "microsoft.operationalinsights/workspaces"
+                  },
+                  "name": "parameters - 1"
+                }
+              ],
+              "exportParameters": true
+            },
+            "customWidth": "20",
+            "name": "group - event selection",
+            "styleSettings": {
+              "margin": "10px",
+              "padding": "20px",
+              "showBorder": true
+            }
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "🖥️ Clients",
+              "items": [
+                {
+                  "type": 9,
+                  "content": {
+                    "version": "KqlParameterItem/1.0",
+                    "parameters": [
+                      {
+                        "id": "f8db7106-eda2-459a-a004-931795ef2b02",
+                        "version": "KqlParameterItem/1.0",
+                        "name": "OSDistribution",
+                        "label": "OS distribution",
+                        "type": 2,
+                        "description": "Filter results on operating system.",
+                        "multiSelect": true,
+                        "quote": "'",
+                        "delimiter": ",",
+                        "typeSettings": {
+                          "additionalResourceOptions": [
+                            "value::all"
+                          ],
+                          "showDefault": false
+                        },
+                        "jsonData": "[\"Windows\", \"Windows7\", \"Windows10\", \"Windows11\", \"WindowsServer2012R2\", \"WindowsServer2019\", \"WindowsServer2022\", \"WindowsServer2016\"]",
+                        "defaultValue": "value::all",
+                        "value": [
+                          "Windows",
+                          "Windows7",
+                          "Windows10",
+                          "WindowsServer2012R2",
+                          "WindowsServer2019",
+                          "WindowsServer2022",
+                          "WindowsServer2016"
+                        ]
+                      }
+                    ],
+                    "style": "above",
+                    "queryType": 0,
+                    "resourceType": "microsoft.operationalinsights/workspaces"
+                  },
+                  "name": "parameters - 1 - Copy"
+                }
+              ],
+              "exportParameters": true
+            },
+            "customWidth": "20",
+            "name": "group - clients",
+            "styleSettings": {
+              "margin": "10px",
+              "padding": "20px",
+              "showBorder": true
+            }
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "🗃️ Executable filters",
+              "items": [
+                {
+                  "type": 9,
+                  "content": {
+                    "version": "KqlParameterItem/1.0",
+                    "parameters": [
+                      {
+                        "id": "ea815a4e-d247-458d-b0fe-55d14ceb1fa7",
+                        "version": "KqlParameterItem/1.0",
+                        "name": "FileType",
+                        "label": "File type",
+                        "type": 2,
+                        "description": "File type, derived from file name extension.",
+                        "multiSelect": true,
+                        "quote": "'",
+                        "delimiter": ",",
+                        "query": "DeviceEvents\r\n| where ActionType startswith \"AppControl\" and isnotempty(FileName)\r\n| extend FileType = toupper(extract(@\"\\.([^\\.]+)$\", 1, FileName))\r\n| summarize Count = count() by FileType\r\n| order by Count desc\r\n| project value = FileType, label = strcat(coalesce(FileType, \"(No file type)\"), \" (\", Count, \")\"), selected = true",
+                        "typeSettings": {
+                          "additionalResourceOptions": [
+                            "value::all"
+                          ],
+                          "selectAllValue": "[]",
+                          "showDefault": false
+                        },
+                        "timeContext": {
+                          "durationMs": 2592000000
+                        },
+                        "timeContextFromParameter": "TimeRange",
+                        "defaultValue": "value::all",
+                        "queryType": 0,
+                        "resourceType": "microsoft.operationalinsights/workspaces"
+                      },
+                      {
+                        "id": "bd6f7fba-c566-4979-998a-d28495bb149f",
+                        "version": "KqlParameterItem/1.0",
+                        "name": "Publisher",
+                        "type": 2,
+                        "description": "Publisher, derived from \"Organization\" on Authenticode certificate.",
+                        "multiSelect": true,
+                        "quote": "'",
+                        "delimiter": ",",
+                        "query": "DeviceEvents\r\n| where ActionType startswith \"AppControl\"\r\n| extend PublisherFqbn = tostring(AdditionalFields.Fqbn)\r\n| parse PublisherFqbn with \"O=\" Publisher \",\"  *\r\n| summarize Count = count() by Publisher\r\n| project value = Publisher, label = strcat(coalesce(Publisher, \"(No publisher)\"), \" (\", Count, \")\"), selected = true\r\n| order by value asc",
+                        "typeSettings": {
+                          "additionalResourceOptions": [
+                            "value::all"
+                          ],
+                          "selectAllValue": "[]",
+                          "showDefault": false
+                        },
+                        "timeContext": {
+                          "durationMs": 2592000000
+                        },
+                        "timeContextFromParameter": "TimeRange",
+                        "defaultValue": "value::all",
+                        "queryType": 0,
+                        "resourceType": "microsoft.operationalinsights/workspaces"
+                      }
+                    ],
+                    "style": "above",
+                    "queryType": 0,
+                    "resourceType": "microsoft.operationalinsights/workspaces"
+                  },
+                  "name": "parameters - 1 - Copy"
+                }
+              ],
+              "exportParameters": true
+            },
+            "customWidth": "20",
+            "name": "group - executable filters",
+            "styleSettings": {
+              "margin": "10px",
+              "padding": "20px",
+              "showBorder": true
+            }
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "title": "🔀 Transformations",
+              "items": [
+                {
+                  "type": 9,
+                  "content": {
+                    "version": "KqlParameterItem/1.0",
+                    "parameters": [
+                      {
+                        "id": "8dc763cb-8df2-4ee4-a729-8fd4f74c3cef",
+                        "version": "KqlParameterItem/1.0",
+                        "name": "FolderDepth",
+                        "label": "Folder depth",
+                        "type": 2,
+                        "description": "Trim path depth in order to improve reporting of paths in aggregate. Example outputs are displayed alongside each level.",
+                        "isRequired": true,
+                        "typeSettings": {
+                          "additionalResourceOptions": [],
+                          "showDefault": false
+                        },
+                        "jsonData": "[\r\n    {\"value\": -1, \"label\": \"No limit\", \"selected\": true},\r\n    {\"value\": 1, \"label\": \"1 - %OSDRIVE%\"},\r\n    {\"value\": 2, \"label\": \"2 - %OSDRIVE%\\\\USERS\"},\r\n    {\"value\": 3, \"label\": \"3 - %OSDRIVE%\\\\USERS\\\\jdoe\"},\r\n    {\"value\": 4, \"label\": \"4 - %OSDRIVE%\\\\USERS\\\\jdoe\\\\APPDATA\"},\r\n    {\"value\": 5, \"label\": \"5 - %OSDRIVE%\\\\USERS\\\\jdoe\\\\APPDATA\\\\LOCAL\"},\r\n    {\"value\": 6, \"label\": \"6 - %OSDRIVE%\\\\USERS\\\\jdoe\\\\APPDATA\\\\LOCAL\\\\TEMP\"},\r\n    {\"value\": 7, \"label\": \"7 - %OSDRIVE%\\\\USERS\\\\jdoe\\\\APPDATA\\\\LOCAL\\\\TEMP\\\\Example\"}\r\n]",
+                        "timeContext": {
+                          "durationMs": 86400000
+                        },
+                        "value": "3"
+                      },
+                      {
+                        "id": "bb38b418-5550-4cfd-b5ab-2aa35faa3eca",
+                        "version": "KqlParameterItem/1.0",
+                        "name": "PathNormalisation",
+                        "label": "Path normalisation",
+                        "type": 2,
+                        "description": "Subtitute common path slugs in order to improve reporting of paths in aggregate. Examples:<br><br>Usernames:<br>C:\\Users\\jdoe\\Documents => C:\\Users\\[user]\\Documents<br><br>GUIDs:<br>C:\\Temp\\420D779D-692E-4DE1-84F3-9D07BF2E1337 => C:\\Temp\\[GUID]<br><br>Hexadecimal:<br>C:\\Windows\\assembly\\NativeImages_v4.0.30319_64\\mscorlib\\5983164f9d7f1ca6cc256f34d228e951 => C:\\Windows\\assembly\\NativeImages_v4.0.30319_64\\mscorlib\\[hex]<br><br>Numbers:<br>C:\\Users\\jdoe\\AppData\\Local\\Microsoft\\OneDrive\\24.010.0114.0003 => C:\\Users\\jdoe\\AppData\\Local\\Microsoft\\OneDrive\\[numbers]",
+                        "multiSelect": true,
+                        "quote": "'",
+                        "delimiter": ",",
+                        "typeSettings": {
+                          "additionalResourceOptions": [
+                            "value::all"
+                          ],
+                          "showDefault": false
+                        },
+                        "jsonData": "[\"Usernames\", \"GUIDs\", \"Hexadecimal\", \"Numbers\"]",
+                        "timeContext": {
+                          "durationMs": 2592000000
+                        },
+                        "timeContextFromParameter": "TimeRange",
+                        "defaultValue": "value::all",
+                        "value": [
+                          "value::all"
+                        ]
+                      }
+                    ],
+                    "style": "above",
+                    "queryType": 0,
+                    "resourceType": "microsoft.operationalinsights/workspaces"
+                  },
+                  "name": "parameters - 1 - Copy"
+                }
+              ],
+              "exportParameters": true
+            },
+            "customWidth": "20",
+            "name": "group - transformations",
+            "styleSettings": {
+              "margin": "10px",
+              "padding": "20px",
+              "showBorder": true
+            }
+          }
+        ],
+        "exportParameters": true
+      },
+      "name": "group - parameters"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "728edfc3-6578-4a97-835f-2933d9a01131",
+            "version": "KqlParameterItem/1.0",
+            "name": "Filter",
+            "type": 1,
+            "description": "KQL query to append to filter results.",
+            "isHiddenWhenLocked": true,
+            "typeSettings": {
+              "multiLineText": true,
+              "editorLanguage": "kql",
+              "multiLineHeight": 3
+            },
+            "criteriaData": [
+              {
+                "criteriaContext": {
+                  "operator": "Default",
+                  "resultValType": "static",
+                  "resultVal": "| where FileName !startswith \"__PSSCRIPTPOLICYTEST_\""
+                }
+              }
+            ],
+            "timeContext": {
+              "durationMs": 86400000
+            }
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - filter"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let ParamActionType = dynamic([{ActionType}]);\r\nlet ParamOSDistribution = dynamic([{OSDistribution}]);\r\nlet ParamPathNormalisation = dynamic([{PathNormalisation}]);\r\nlet ParamPublisher = dynamic([{Publisher}]);\r\nlet ParamFileType = dynamic([{FileType}]);\r\nlet ParamFolderDepth = {FolderDepth};\r\n//\r\nlet SetMax = 10;\r\n//\r\nlet GetEmoji = (actionType:string) {\r\n    case(\r\n        true, \"\", // disable\r\n        actionType endswith \"Allowed\", \"✅\",\r\n        actionType endswith \"Blocked\", \"🚫\",\r\n        actionType endswith \"Revoked\", \"❌\",\r\n        actionType endswith \"Audited\", \"📝\",\r\n        actionType endswith \"Information\", \"📘\",\r\n        actionType endswith \"PolicyApplied\", \"🛠️\",\r\n        actionType endswith \"Loaded\", \"🔃\",\r\n        \"🔵\" // default\r\n    )\r\n};\r\n//\r\nDeviceEvents\r\n| where iff(array_length(ParamActionType) == 0, ActionType startswith \"AppControl\", ActionType in (ParamActionType))\r\n{Filter}\r\n// Generalise FolderPath\r\n| extend FolderPathOriginal = FolderPath\r\n| extend FolderPathGeneralised = FolderPath\r\n// Remove usernames\r\n| extend FolderPathGeneralised = iff(\"Usernames\" in (ParamPathNormalisation), replace_regex(FolderPathGeneralised, @\"(?i)(\\\\USERS\\\\)([^\\\\]+)\", @\"\\1[user]\"), FolderPathGeneralised)\r\n// Remove GUIDs\r\n| extend FolderPathGeneralised = iff(\"GUIDs\" in (ParamPathNormalisation), replace_regex(FolderPathGeneralised, @\"(?i)([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12,13})\", @\"[GUID]\"), FolderPathGeneralised)\r\n// Remove hexadecimal\r\n| extend FolderPathGeneralised = iff(\"Hexadecimal\" in (ParamPathNormalisation), replace_regex(FolderPathGeneralised, @\"(?i)[0-9A-F]{8,}\", @\"[hex]\"), FolderPathGeneralised)\r\n// Remove version numbers or temp folders\r\n| extend FolderPathGeneralised = iff(\"Numbers\" in (ParamPathNormalisation), replace_regex(FolderPathGeneralised, @\"(\\\\)([\\d\\._]+)(\\\\?)\", @\"\\1[numbers]\\3\"), FolderPathGeneralised)\r\n| extend FolderPath = FolderPathGeneralised\r\n//\r\n// Apply folder depth parameter\r\n| extend FolderPath = iff(isempty(ParamFolderDepth) or ParamFolderDepth == -1, FolderPath, strcat_array(array_slice(split(FolderPath, \"\\\\\"), 0, ParamFolderDepth-1), \"\\\\\"))\r\n//\r\n| extend PublisherFqbn = tostring(AdditionalFields.Fqbn)\r\n| parse PublisherFqbn with \"O=\" Publisher \",\"  *\r\n| extend FileType = toupper(extract(@\"\\.([^\\.]+)$\", 1, FileName))\r\n| where iff(array_length(ParamFileType) == 0, true, FileType in (ParamFileType))\r\n| where iff(array_length(ParamPublisher) == 0, true, Publisher in (ParamPublisher))\r\n//| extend FqbnO = AdditionalFields.Fqbn\r\n// | summarize FileNamesSample = make_set(FileName), Count = count() by ActionType, FolderPath\r\n//| order by Count desc\r\n//| limit 200\r\n| join kind=leftouter (\r\n    DeviceInfo\r\n    | summarize arg_max(TimeGenerated, *) by DeviceId\r\n    | project DeviceId, DeviceName, OSDistribution, OSPlatform, OSBuild, OSVersionInfo\r\n) on DeviceId\r\n| where iff(isempty(ParamOSDistribution) or array_length(ParamOSDistribution) == 0, true, OSDistribution in (ParamOSDistribution) or isempty(OSDistribution))\r\n| extend Emoji = GetEmoji(ActionType)\r\n| extend ActionType = strcat(Emoji, \" \", ActionType)\r\n| summarize\r\n    FolderPathOriginal = make_set(FolderPathOriginal, SetMax),\r\n    PublisherFqbn = make_set(PublisherFqbn, SetMax),\r\n    InitiatingProcessCommandLine = make_set(InitiatingProcessCommandLine, SetMax),\r\n    InitiatingProcessSHA256 = make_set(InitiatingProcessSHA256, SetMax),\r\n    InitiatingProcessSHA1 = make_set(InitiatingProcessSHA1, SetMax),\r\n    InitiatingProcessMD5 = make_set(InitiatingProcessMD5, SetMax),\r\n    FirstSeen = min(TimeGenerated),\r\n    LastSeen = max(TimeGenerated),\r\n    Count = count() by ActionType, FileName, FileType, FolderPath, Publisher, OSDistribution // DeviceName\r\n//| project TimeGenerated, ActionType, FileName, FolderPath, Publisher, DeviceName, OSDistribution //, OSPlatform, OSBuild // ActionType, DeviceName\r\n//| order by TimeGenerated asc\r\n| order by Count desc",
+        "size": 2,
+        "showAnalytics": true,
+        "timeContextFromParameter": "TimeRange",
+        "showRefreshButton": true,
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "ActionType",
+              "formatter": 18,
+              "formatOptions": {
+                "linkTarget": "GenericDetails",
+                "linkIsContextBlade": true,
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "//AppControl",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "endsWith",
+                    "thresholdValue": "Blocked",
+                    "representation": "4",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "endsWith",
+                    "thresholdValue": "Allowed",
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "endsWith",
+                    "thresholdValue": "Revoked",
+                    "representation": "disabled",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "endsWith",
+                    "thresholdValue": "Audited",
+                    "representation": "2",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "endsWith",
+                    "thresholdValue": "Information",
+                    "representation": "1",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "endsWith",
+                    "thresholdValue": "PolicyApplied",
+                    "representation": "more",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "endsWith",
+                    "thresholdValue": "Loaded",
+                    "representation": "pending",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "2",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "FileName",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "is Empty",
+                    "representation": "Blank",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "sourceColumn": "FileType",
+                    "operator": "==",
+                    "thresholdValue": "EXE",
+                    "representation": "Restore",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "sourceColumn": "FileType",
+                    "operator": "==",
+                    "thresholdValue": "DLL",
+                    "representation": "Gear",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "sourceColumn": "FileType",
+                    "operator": "==",
+                    "thresholdValue": "OCX",
+                    "representation": "Gear"
+                  },
+                  {
+                    "sourceColumn": "FileType",
+                    "operator": "==",
+                    "thresholdValue": "PS1",
+                    "representation": "Console",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "sourceColumn": "FileType",
+                    "operator": "==",
+                    "thresholdValue": "PYD",
+                    "representation": "Console",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "sourceColumn": "FileType",
+                    "operator": "==",
+                    "thresholdValue": "PSM1",
+                    "representation": "Console",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "sourceColumn": "FileType",
+                    "operator": "==",
+                    "thresholdValue": "PSD1",
+                    "representation": "Console",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "sourceColumn": "FileType",
+                    "operator": "==",
+                    "thresholdValue": "MSI",
+                    "representation": "ResourceFlat"
+                  },
+                  {
+                    "sourceColumn": "FileType",
+                    "operator": "==",
+                    "thresholdValue": "TMP",
+                    "representation": "Trash",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "sourceColumn": "FileType",
+                    "operator": "is Empty",
+                    "representation": "question",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "sourceColumn": "FileType",
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "File",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "FolderPathOriginal",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "PublisherFqbn",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "InitiatingProcessCommandLine",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "InitiatingProcessSHA256",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "InitiatingProcessSHA1",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "InitiatingProcessMD5",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "FirstSeen",
+              "formatter": 6,
+              "dateFormat": {
+                "showUtcTime": null,
+                "formatName": "shortDateTimeNoMsPattern"
+              }
+            },
+            {
+              "columnMatch": "LastSeen",
+              "formatter": 6,
+              "dateFormat": {
+                "showUtcTime": null,
+                "formatName": "shortDateTimeNoMsPattern"
+              }
+            },
+            {
+              "columnMatch": "FolderPathOriginals",
+              "formatter": 5
+            }
+          ],
+          "rowLimit": 1000,
+          "filter": true
+        },
+        "sortBy": [],
+        "tileSettings": {
+          "titleContent": {
+            "columnMatch": "ActionType",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "Count",
+            "formatter": 12,
+            "formatOptions": {
+              "min": 0,
+              "palette": "blue"
+            }
+          },
+          "showBorder": false,
+          "sortCriteriaField": "ActionType",
+          "sortOrderField": 1,
+          "size": "auto"
+        },
+        "graphSettings": {
+          "type": 0,
+          "topContent": {
+            "columnMatch": "ActionType",
+            "formatter": 1
+          },
+          "centerContent": {
+            "columnMatch": "Count",
+            "formatter": 1,
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        },
+        "mapSettings": {
+          "locInfo": "LatLong"
+        }
+      },
+      "name": "query - main"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let ParamPublisher = dynamic([{Publisher}]);\r\n//\r\nDeviceEvents\r\n| where ActionType == \"AppControlExecutableBlocked\"\r\n{Filter}\r\n| extend PublisherFqbn = tostring(AdditionalFields.Fqbn)\r\n| parse PublisherFqbn with \"O=\" Publisher \",\"  *\r\n| where iff(array_length(ParamPublisher) == 0, true, Publisher in (ParamPublisher))\r\n| summarize Count = count() by Publisher, DeviceName\r\n| order by Count desc",
+              "size": 3,
+              "title": "Top blocked executables by publisher",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "DeviceName",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Count",
+                    "formatter": 8,
+                    "formatOptions": {
+                      "palette": "blue"
+                    }
+                  }
+                ],
+                "hierarchySettings": {
+                  "treeType": 1,
+                  "groupBy": [
+                    "Publisher"
+                  ],
+                  "expandTopLevel": true,
+                  "finalBy": "Count"
+                }
+              },
+              "tileSettings": {
+                "showBorder": false,
+                "titleContent": {
+                  "columnMatch": "Publisher",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "Count",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              }
+            },
+            "customWidth": "30",
+            "name": "query - top blocked executables"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let ParamPathNormalisation = dynamic([{PathNormalisation}]);\r\nlet ParamFolderDepth = {FolderDepth};\r\n//\r\nDeviceEvents\r\n| where ActionType == \"AppControlExecutableBlocked\"\r\n{Filter}\r\n// Generalise FolderPath\r\n| extend FolderPathOriginal = FolderPath\r\n| extend FolderPathGeneralised = FolderPath\r\n// Remove usernames\r\n| extend FolderPathGeneralised = iff(\"Usernames\" in (ParamPathNormalisation), replace_regex(FolderPathGeneralised, @\"(?i)(\\\\USERS\\\\)([^\\\\]+)\", @\"\\1[user]\"), FolderPathGeneralised)\r\n// Remove GUIDs\r\n| extend FolderPathGeneralised = iff(\"GUIDs\" in (ParamPathNormalisation), replace_regex(FolderPathGeneralised, @\"(?i)([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12,13})\", @\"[GUID]\"), FolderPathGeneralised)\r\n// Remove hexadecimal\r\n| extend FolderPathGeneralised = iff(\"Hexadecimal\" in (ParamPathNormalisation), replace_regex(FolderPathGeneralised, @\"(?i)[0-9A-F]{8,}\", @\"[hex]\"), FolderPathGeneralised)\r\n// Remove version numbers or temp folders\r\n| extend FolderPathGeneralised = iff(\"Numbers\" in (ParamPathNormalisation), replace_regex(FolderPathGeneralised, @\"(\\\\)([\\d\\._]+)(\\\\?)\", @\"\\1[numbers]\\3\"), FolderPathGeneralised)\r\n| extend FolderPath = FolderPathGeneralised\r\n//\r\n// Apply folder depth parameter\r\n| extend FolderPath = iff(isempty(ParamFolderDepth) or ParamFolderDepth == -1, FolderPath, strcat_array(array_slice(split(FolderPath, \"\\\\\"), 0, ParamFolderDepth-1), \"\\\\\"))\r\n//\r\n//| extend PublisherFqbn = tostring(AdditionalFields.Fqbn)\r\n//| parse PublisherFqbn with \"O=\" Publisher \",\"  *\r\n//| where iff(array_length(ParamPublisher) == 0, true, Publisher in (ParamPublisher))\r\n| summarize Count = count() by FileName\r\n| order by Count desc",
+              "size": 3,
+              "title": "Top blocked executables by file name",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "showBorder": false,
+                "titleContent": {
+                  "columnMatch": "Publisher",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "Count",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              }
+            },
+            "customWidth": "30",
+            "name": "query - top blocked executables - folderpath - Copy"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let ParamPathNormalisation = dynamic([{PathNormalisation}]);\r\nlet ParamFolderDepth = {FolderDepth};\r\n//\r\nDeviceEvents\r\n| where ActionType == \"AppControlExecutableBlocked\"\r\n{Filter}\r\n// Generalise FolderPath\r\n| extend FolderPathOriginal = FolderPath\r\n| extend FolderPathGeneralised = FolderPath\r\n// Remove usernames\r\n| extend FolderPathGeneralised = iff(\"Usernames\" in (ParamPathNormalisation), replace_regex(FolderPathGeneralised, @\"(?i)(\\\\USERS\\\\)([^\\\\]+)\", @\"\\1[user]\"), FolderPathGeneralised)\r\n// Remove GUIDs\r\n| extend FolderPathGeneralised = iff(\"GUIDs\" in (ParamPathNormalisation), replace_regex(FolderPathGeneralised, @\"(?i)([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12,13})\", @\"[GUID]\"), FolderPathGeneralised)\r\n// Remove hexadecimal\r\n| extend FolderPathGeneralised = iff(\"Hexadecimal\" in (ParamPathNormalisation), replace_regex(FolderPathGeneralised, @\"(?i)[0-9A-F]{8,}\", @\"[hex]\"), FolderPathGeneralised)\r\n// Remove version numbers or temp folders\r\n| extend FolderPathGeneralised = iff(\"Numbers\" in (ParamPathNormalisation), replace_regex(FolderPathGeneralised, @\"(\\\\)([\\d\\._]+)(\\\\?)\", @\"\\1[numbers]\\3\"), FolderPathGeneralised)\r\n| extend FolderPath = FolderPathGeneralised\r\n//\r\n// Apply folder depth parameter\r\n| extend FolderPath = iff(isempty(ParamFolderDepth) or ParamFolderDepth == -1, FolderPath, strcat_array(array_slice(split(FolderPath, \"\\\\\"), 0, ParamFolderDepth-1), \"\\\\\"))\r\n//\r\n//| extend PublisherFqbn = tostring(AdditionalFields.Fqbn)\r\n//| parse PublisherFqbn with \"O=\" Publisher \",\"  *\r\n//| where iff(array_length(ParamPublisher) == 0, true, Publisher in (ParamPublisher))\r\n| summarize Count = count() by FolderPath\r\n| order by Count desc",
+              "size": 3,
+              "title": "Top blocked executables by folder path",
+              "timeContextFromParameter": "TimeRange",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "visualization": "piechart",
+              "tileSettings": {
+                "showBorder": false,
+                "titleContent": {
+                  "columnMatch": "Publisher",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "Count",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "auto"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "maximumSignificantDigits": 3,
+                      "maximumFractionDigits": 2
+                    }
+                  }
+                }
+              },
+              "chartSettings": {
+                "group": "FolderPath",
+                "createOtherGroup": null
+              }
+            },
+            "customWidth": "30",
+            "name": "query - top blocked executables - folderpath"
+          }
+        ]
+      },
+      "name": "group - pie charts"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let ParamActionType = dynamic([{ActionType}]);\r\n//\r\nDeviceEvents\r\n| where iff(array_length(ParamActionType) == 0, ActionType startswith \"AppControl\", ActionType in (ParamActionType))\r\n{Filter}\r\n| summarize Count = count() by ActionType\r\n| order by Count desc",
+        "size": 3,
+        "title": "Top action types",
+        "timeContextFromParameter": "TimeRange",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "visualization": "piechart",
+        "tileSettings": {
+          "titleContent": {
+            "columnMatch": "ActionType",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "Count",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "auto"
+            },
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "style": "decimal",
+                "maximumFractionDigits": 2,
+                "maximumSignificantDigits": 3
+              }
+            }
+          },
+          "showBorder": false,
+          "sortCriteriaField": "Count",
+          "sortOrderField": 2
+        },
+        "graphSettings": {
+          "type": 0,
+          "topContent": {
+            "columnMatch": "ActionType",
+            "formatter": 1
+          },
+          "centerContent": {
+            "columnMatch": "Count",
+            "formatter": 1,
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        },
+        "chartSettings": {
+          "yAxis": [
+            "Count"
+          ],
+          "seriesLabelSettings": [
+            {
+              "seriesName": "AppControlExecutableBlocked",
+              "color": "redBright"
+            },
+            {
+              "seriesName": "AppControlPolicyApplied",
+              "color": "blue"
+            },
+            {
+              "seriesName": "AppControlCodeIntegritySigningInformation",
+              "color": "blueDark"
+            },
+            {
+              "seriesName": "AppControlExecutableAudited",
+              "color": "blue"
+            },
+            {
+              "seriesName": "Other",
+              "color": "greenDarkDark"
+            },
+            {
+              "seriesName": "AppControlCodeIntegrityOriginAudited",
+              "color": "blue"
+            },
+            {
+              "seriesName": "AppControlCIScriptAudited",
+              "color": "blue"
+            }
+          ]
+        },
+        "mapSettings": {
+          "locInfo": "LatLong",
+          "sizeSettings": "Count",
+          "sizeAggregation": "Sum",
+          "legendMetric": "Count",
+          "legendAggregation": "Sum",
+          "itemColorSettings": {
+            "type": "heatmap",
+            "colorAggregation": "Sum",
+            "nodeColorField": "Count",
+            "heatmapPalette": "greenRed"
+          }
+        }
+      },
+      "customWidth": "20",
+      "name": "query - ActionTypes"
+    }
+  ],
+  "fallbackResourceIds": [],
+  "fromTemplateId": "sentinel-UserWorkbook",
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
