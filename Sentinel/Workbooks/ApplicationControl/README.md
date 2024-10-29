@@ -65,6 +65,12 @@ Subtitute common path slugs, such as usernames, GUIDs and numbers, in order to i
 
 ## Installation
 
+### Deploy automatically from ARM template
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https%3A%2F%2Fraw.githubusercontent.com%2Flukejjh%2FMicrosoftSentinel%2Frefs%2Fheads%2Fmaster%2FSentinel%2FWorkbooks%2FApplicationControl%2FApplicationControl-arm.json)
+
+### Deploy manually from workbook source
+
 1. In your Sentinel workspace, navigate to **Workbooks** > **Add Workbook**.
 2. Click **Edit**, then click the **Advanced Editor** button.
 3. Copy the contents of [ApplicationControl.json](./ApplicationControl.json) and paste it into the **Gallery Template** field.
