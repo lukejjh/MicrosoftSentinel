@@ -1,0 +1,20 @@
+// Query accounts with AAD admin roles signing in overseas. Returns users, locations, assigned roles and IP addresses.
+let Lookback = 90d;
+let HomeCountry = "AU";
+//
+let AdminAccounts = materialize(IdentityInfo
+| where TimeGenerated > ago(90d)
+| where array_length(AssignedRoles) > 0
+// Capture all roles and combine since this can change over time based on PIM activations
+| mv-expand AssignedRoles
+| summarize AssignedRoles = make_set(AssignedRoles, 100) by AccountObjectId, AccountName)
+;
+let AdminAccountsUserIds = (AdminAccounts | project AccountObjectId)
+;
+SigninLogs
+| where TimeGenerated > ago(Lookback)
+| where ResultType == 0 // Successful only
+| where Location != HomeCountry and isnotempty(Location)
+| where UserId in (AdminAccountsUserIds)
+| join kind=leftouter AdminAccounts on $left.UserId == $right.AccountObjectId
+| summarize IPAddresses = make_set(IPAddress, 10), count() by UserDisplayName, UserPrincipalName, UserId, Location, tostring(AssignedRoles)
