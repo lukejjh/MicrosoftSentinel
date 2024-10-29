@@ -67,7 +67,7 @@ Subtitute common path slugs, such as usernames, GUIDs and numbers, in order to i
 
 ### Deploy automatically from ARM template
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https%3A%2F%2Fraw.githubusercontent.com%2Flukejjh%2FMicrosoftSentinel%2Frefs%2Fheads%2Fmaster%2FSentinel%2FWorkbooks%2FApplicationControl%2FApplicationControl-arm.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Flukejjh%2FMicrosoftSentinel%2Frefs%2Fheads%2Fmaster%2FSentinel%2FWorkbooks%2FApplicationControl%2FApplicationControl-arm.json)
 
 ### Deploy manually from workbook source
 
