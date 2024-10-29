@@ -1,0 +1,23 @@
+// An experimental method of discovering Edge and Chrome extensions from DeviceFileEvents.
+DeviceFileEvents
+| where FolderPath has_all ("\\AppData\\Local\\", "\\User Data\\") and FolderPath has_any ("\\Microsoft\\Edge\\", "\\Google\\Chrome\\")
+| where FolderPath has_any ("Extensions", "Local Extension Settings", "IndexedDB", "Managed Extension Settings", "Storage\\ext", "Sync App Settings", "Sync Extension Settings", "Webstore Downloads") // "Web Applications", "Web Applications\\Manifest Resources"
+| where FolderPath !startswith "\\Device\\"
+| where FolderPath !has "Temp"
+| extend
+    ExtensionId = extract(@"([a-z]{32})", 1, FolderPath),
+    Browser = extract(@"\\([^\\]+)\\User Data", 1, FolderPath)
+| extend ExtensionSource = case(Browser == "Edge", "Microsoft", Browser == "Chrome", "Webstore", "")
+| extend ExtensionSource = iff(FolderPath has "\\Webstore Downloads\\", "Webstore", ExtensionSource)
+| where isnotempty(ExtensionId)
+| extend FolderPathSrc = case(
+    FolderPath has "Webstore Downloads", extract(@"C:\\Users\\[^\\]+\\AppData\\Local\\[^\\]+\\[^\\]+\\User Data\\([^\\]+)\\", 1, FolderPath),
+    extract(@"C:\\Users\\[^\\]+\\AppData\\Local\\[^\\]+\\[^\\]+\\User Data\\[^\\]+\\([^\\]+)\\", 1, FolderPath)
+)
+| summarize
+    ActionTypes = make_set(ActionType, 10),
+    AccountUpns = make_set(InitiatingProcessAccountUpn, 10),
+    FolderPathSamples = make_set(FolderPath, 3),
+    EventCount = count()
+    by ExtensionId, ExtensionSource, Browser, FolderPathSrc
+| order by EventCount desc
