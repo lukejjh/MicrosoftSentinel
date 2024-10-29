@@ -1,0 +1,15 @@
+// Query Azure DNS zone records for changes
+let Lookback = 30d;
+//
+AzureActivity
+| where TimeGenerated > ago(Lookback)
+| where ActivityStatus == "Succeeded"
+| where OperationName startswith "Create or update record set of type"
+| where OperationNameValue startswith "Microsoft.Network/dnszones"
+| extend Operation = extract(@"Microsoft.Network/dnszones/[^/]+/(.+)", 1, OperationNameValue)
+| extend RecordType = extract(@"Microsoft.Network/dnszones/([^/]+)", 1, OperationNameValue)
+| extend Record = parse_json(tostring(parse_json(tostring(parse_json(Properties).responseBody)).properties))
+| extend RecordFqdn = Record.fqdn
+| extend RecordTtl = Record.TTL
+| project TimeGenerated, Operation, Caller, CallerIpAddress, Resource, RecordFqdn, RecordType, RecordTtl, Record
+| order by TimeGenerated desc
