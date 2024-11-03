@@ -1,0 +1,36 @@
+//  EmailInvestigateLinks
+//  Outputs links you can use in alert description texts (or any other context supporting markdown),
+//  giving you one-click email investigation superpowers.
+//
+// Sample data
+//
+// let NetworkMessageId = "d3adb33f-c96b-4b0e-7eb1-08dc3eec1337";
+// let InternetMessageId = "<8603401a-7d46-bc4d-14e5-3e2f04201334201337@example.org>";
+// let SenderFromAddress = "john.doe@example.org";
+// let SenderMailFromAddress = "john.doe@mail.example.org";
+// let SenderFromDomain = "example.org";
+// let SenderMailFromDomain = "john.doe@example.org";
+// let RecipientEmailAddress = "jane.doe@example.org";
+// let Subject = "Hello world.";
+//
+let ThreatExplorerBaseLink = @"https://security.microsoft.com/threatexplorerv3?dltarget=Explorer&dlstorage=Url&viewid=allemail";
+let EmailEntityBaseLink    = @"https://security.microsoft.com/emailentity?f=explorer&startTime=1970-01-01&endTime=9999-01-01&id=";
+let EmailPreviewBaseLink   = @"https://security.microsoft.com/emailpreview?startTime=1970-01-01&endTime=9999-01-01&id=";
+//
+let EmailEntityLink        = strcat(EmailEntityBaseLink, url_encode(tostring(NetworkMessageId)), "&recipient=", RecipientEmailAddress);
+let EmailPreviewLink       = strcat(EmailPreviewBaseLink, NetworkMessageId, "&recipient=", url_encode(tostring(RecipientEmailAddress)));
+let ThreatExplorerLink     = strcat(ThreatExplorerBaseLink, "&query-NetworkMessageId=", url_encode(tostring(NetworkMessageId)));
+//
+strcat(
+    "[✉️ Email entity](",EmailEntityLink,")<br>",
+    "[📄 Email preview](",EmailPreviewLink,")<br><br>",
+    //
+    "Investigate with Threat Explorer:<br>",
+    "[🔍 From: ",SenderFromAddress,"](",ThreatExplorerBaseLink,"&query-P2Sender=",url_encode(SenderFromAddress),")<br>",
+    "[🔍 From: ",SenderFromDomain,"](",ThreatExplorerBaseLink,"&query-P2SenderDomain=",url_encode(SenderFromDomain),")<br>",
+    "[🔍 From: ",SenderMailFromAddress,"](",ThreatExplorerBaseLink,"&query-P1Sender=",url_encode(SenderMailFromAddress),")<br>",
+    "[🔍 From: ",SenderMailFromDomain,"](",ThreatExplorerBaseLink,"&query-P2SenderDomain=",url_encode(SenderMailFromDomain),")<br>",
+    // "[🔍 To: ",RecipientEmailAddress,"](",ThreatExplorerBaseLink,"&query-recipient=",url_encode(RecipientEmailAddress),")<br>", // need to fix
+    "[🔍 Subject: ",substring(Subject, 0, 50),"](",ThreatExplorerBaseLink,"&query-Subject=",url_encode(tostring(Subject)),")<br>",
+    "[🔍 InternetMessageId: ",substring(InternetMessageId, 0, 25),"...](",ThreatExplorerBaseLink,"&query-InternetMessageId=",url_encode(tostring(InternetMessageId)),")"
+)

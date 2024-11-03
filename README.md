@@ -11,6 +11,7 @@ This repository contains an assortment of resources pertaining to Defender XDR a
 * [Passive DNS search IP](./Sentinel/Queries/passive-dns-search-ip.txt)
 
 ### 🛠️ Functions
+* [EmailInvestigateLinks](./Sentinel/Functions/EmailInvestigateLinks)
 * [CountryCodeLookup](./Sentinel/Functions/CountryCodeLookup.txt)
 
 ### 📊 Workbooks
