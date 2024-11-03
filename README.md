@@ -26,6 +26,7 @@ This repository contains an assortment of resources pertaining to Defender XDR a
 * [Discover browser extensions from device events](./M365D/discover-browser-extensions-from-device-events.txt)
 * [Email events top sender domain TLDs](./M365D/emailevents-top-sender-domain-tlds.txt)
 * [Emails failing to deliver to SecOps mailbox](./M365D/emails-failing-to-deliver-to-secops-mailbox.txt)
+* [Hunt links opened from PDFs](./M365D/hunt-links-opened-from-pdfs.txt)
 * [Outlook to browser file opens](./M365D/outlook-to-browser-file-opens.txt)
 * [Suspicious Windows script host execution](./M365D/suspicious-windows-script-host-execution.txt)
 * [Users added to local administrators group](./M365D/users-added-to-local-administrators-group.txt)

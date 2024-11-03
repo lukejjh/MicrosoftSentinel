@@ -1,0 +1,12 @@
+// Hunt for links opened from PDFs, sorting by least common domains, paired with samples of PDF file names and URLs
+DeviceEvents
+| where ActionType == "BrowserLaunchedToOpenUrl"
+// | where InitiatingProcessParentFileName =~ "outlook.exe"
+| where
+    InitiatingProcessFileName in~ ("acrobat.exe", "acrord32.exe") or
+    InitiatingProcessCommandLine has ".pdf"
+| where RemoteUrl startswith "http"
+| extend PdfFileName = parse_path(tostring(replace_regex(InitiatingProcessCommandLine, @'^.*\s+([^"])"?$^', '\1'))).Filename
+| extend RemoteUrlDomain = tostring(parse_url(RemoteUrl).Host)
+| summarize PdfFileNames = make_set(PdfFileName, 5), RemoteUrls = make_set(RemoteUrl, 5), Count = count() by RemoteUrlDomain
+| order by Count asc
