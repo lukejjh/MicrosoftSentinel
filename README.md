@@ -10,6 +10,9 @@ This repository contains an assortment of resources pertaining to Defender XDR a
 * [Azure DNS zone record changes](./Sentinel/Queries/azure-dns-zone-record-changes.txt)
 * [Passive DNS search IP](./Sentinel/Queries/passive-dns-search-ip.txt)
 
+### Functions
+* [CountryCodeLookup](./Sentinel/Functions/CountryCodeLookup.txt)
+
 ### Workbooks
 
 * [Application Control](./Sentinel/Workbooks/ApplicationControl)
