@@ -18,6 +18,7 @@ This repository contains an assortment of resources pertaining to Defender XDR a
 
 ### Queries
 
+* [Detect remote access software](./M365D/detect-remote-access-software.txt)
 * [Discover browser extensions from device events](./M365D/discover-browser-extensions-from-device-events.txt)
 * [Email events top sender domain TLDs](./M365D/emailevents-top-sender-domain-tlds.txt)
 * [Emails failing to deliver to SecOps mailbox](./M365D/emails-failing-to-deliver-to-secops-mailbox.txt)

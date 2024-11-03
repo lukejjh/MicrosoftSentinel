@@ -1,0 +1,17 @@
+// Detects the presence or attempted execution of remote access software.
+let RemoteAccessProductsRegex = @"(?i)TeamViewer|AnyDesk|LogMeIn|ConnectWise|ScreenConnect|Ammyy|(Real|Tight|Ultra|Tiger|Turbo).*VNC|GoTo.*(MyPC|Assist|Resolve)|RemotePC|Zoho.*Assist|Anyplace.*Control|Ericom.*Connect|NetSupport.*Manager|RustDesk|Splashtop|Symantec.*pcAnywhere|Techinline";
+let FileExtensionsRegex = @"(?i)exe|msi|zip|7z|rar|iso|appx";
+let FolderPathExceptionsRegex = @"(?i)C:\\Windows\\CSC|C:\\ProgramData\\Microsoft\\Windows Defender Advanced Threat Protection";
+//
+union DeviceProcessEvents, DeviceFileEvents
+| where not(FolderPath matches regex FolderPathExceptionsRegex)
+| where (
+  FileName matches regex RemoteAccessProductsRegex or
+  ProcessVersionInfoFileDescription matches regex RemoteAccessProductsRegex or
+  ProcessVersionInfoCompanyName matches regex RemoteAccessProductsRegex or
+  ProcessVersionInfoProductName matches regex RemoteAccessProductsRegex
+)
+| where FileName matches regex FileExtensionsRegex
+| where not(ProcessVersionInfoProductName has_any("GoToMeeting", "GoToOpener", "GoTo Opener"))
+| where not(InitiatingProcessAccountName == "system" and InitiatingProcessFileName == "svchost.exe") // Exclude TeamViewer running as a service.
+| where not(InitiatingProcessVersionInfoCompanyName has_any("TeamViewer", "TeamViewer Germany GmbH")) // Exclude TeamViewer installer/self-extractor events. Initial execution/creation should still be caught.
