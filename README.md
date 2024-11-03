@@ -3,23 +3,23 @@ This repository contains an assortment of resources pertaining to Defender XDR a
 
 ## Sentinel
 
-### Queries
+### 📋 Queries
 
 * [Accounts with AAD admin roles signing in overseas](./Sentinel/Queries/accounts-with-aad-admin-roles-signing-in-overseas.txt)
 * [Azure AD device registrations](./Sentinel/Queries/azure-ad-device-registrations.txt)
 * [Azure DNS zone record changes](./Sentinel/Queries/azure-dns-zone-record-changes.txt)
 * [Passive DNS search IP](./Sentinel/Queries/passive-dns-search-ip.txt)
 
-### Functions
+### 🛠️ Functions
 * [CountryCodeLookup](./Sentinel/Functions/CountryCodeLookup.txt)
 
-### Workbooks
+### 📊 Workbooks
 
 * [Application Control](./Sentinel/Workbooks/ApplicationControl)
 
 ## Defender XDR
 
-### Queries
+### 📋 Queries
 
 * [Detect remote access software](./M365D/detect-remote-access-software.txt)
 * [Discover browser extensions from device events](./M365D/discover-browser-extensions-from-device-events.txt)
