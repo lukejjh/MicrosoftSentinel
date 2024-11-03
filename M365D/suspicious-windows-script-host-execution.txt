@@ -1,3 +1,4 @@
+// Execution of Windows Script Host (.vbs, .vbe, .js, .jse, etc.) from user Downloads/temp folder (i.e. opened from zip archive) or from web browser.
 DeviceProcessEvents 
 | where FileName has_any("wscript.exe", "cscript.exe")
 | where 
