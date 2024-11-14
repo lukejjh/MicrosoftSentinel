@@ -1,0 +1,30 @@
+// Shows all PIM activation requests, including user, role, group, justification, IP address, start time and expiration time.
+AuditLogs
+| where OperationName == "Add member to role requested (PIM activation)"
+| project TimeGenerated, OperationName, Category, Identity, AdditionalDetails, InitiatedBy, TargetResources
+| mv-expand TargetResources
+| extend
+    UserDisplayName = iff(TargetResources.type == "User", TargetResources.displayName, ""),
+    UserPrincipalName = iff(TargetResources.type == "User", TargetResources.userPrincipalName, ""),
+    Role = iff(TargetResources.type == "Role", TargetResources.displayName, ""),
+    Other = iff(TargetResources.type == "Other" and isnotnull(TargetResources.displayName), TargetResources.displayName, ""),
+    Group_ = iff(TargetResources.type == "Group", TargetResources.displayName, "")
+| extend
+    Group = case(
+        Category == "RoleManagement", Group_,
+        Category == "ResourceManagement", Group_,
+        Category == "GroupManagement", Other,
+        ""
+    )
+| mv-expand AdditionalDetails
+| extend
+    Justification = iff(AdditionalDetails.key == "Justification", AdditionalDetails.value, ""),
+    StartTime = todatetime(iff(AdditionalDetails.key == "StartTime", AdditionalDetails.value, "")),
+    ExpirationTime = todatetime(iff(AdditionalDetails.key == "ExpirationTime", AdditionalDetails.value, "")),
+    IpAddress = iff(AdditionalDetails.key == "ipaddr", AdditionalDetails.value, ""),
+    RoleDefinitionOriginType = iff(AdditionalDetails.key == "RoleDefinitionOriginType", AdditionalDetails.value, "")
+| summarize
+    Category=any(Category), UserDisplayName=any(UserDisplayName), UserPrincipalName=any(UserPrincipalName), Role=any(Role), Group=any(Group),
+    Justification=any(Justification), IpAddress=any(IpAddress), StartTime=any(StartTime), ExpirationTime=any(ExpirationTime)
+    by TimeGenerated
+| order by TimeGenerated asc

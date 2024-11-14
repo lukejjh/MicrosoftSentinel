@@ -9,6 +9,7 @@ This repository contains an assortment of resources pertaining to Defender XDR a
 * [Azure AD device registrations](./Sentinel/Queries/azure-ad-device-registrations.txt)
 * [Azure DNS zone record changes](./Sentinel/Queries/azure-dns-zone-record-changes.txt)
 * [Passive DNS search IP](./Sentinel/Queries/passive-dns-search-ip.txt)
+* [PIM activations](./Sentinel/Queries/pim-activations.txt)
 
 ### 🛠️ Functions
 * [EmailInvestigateLinks](./Sentinel/Functions/EmailInvestigateLinks)
