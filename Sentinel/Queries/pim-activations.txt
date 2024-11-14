@@ -27,4 +27,4 @@ AuditLogs
     Category=any(Category), UserDisplayName=any(UserDisplayName), UserPrincipalName=any(UserPrincipalName), Role=any(Role), Group=any(Group),
     Justification=any(Justification), IpAddress=any(IpAddress), StartTime=any(StartTime), ExpirationTime=any(ExpirationTime)
     by TimeGenerated
-| order by TimeGenerated asc
+| order by TimeGenerated
